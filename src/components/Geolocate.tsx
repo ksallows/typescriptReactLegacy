@@ -48,31 +48,39 @@ class Geolocate extends React.Component<myProps, LocateState> {
         const errorPosition = () => console.log('Error getting location data.')
 
         const successPosition = (position: Position) => {
+            console.log(position.coords)
             this.setState({
                 lat: position.coords.latitude,
                 lon: position.coords.longitude
             })
         }
 
-        navigator.geolocation.getCurrentPosition(successPosition, errorPosition, { enableHighAccuracy: true, timeout: 10000 });
-        fetch(`${baseURL}?lat=${this.state.lat}&lon=${this.state.lon}&appid=${key}&units=imperial`)
-            .then(result => result.json())
-            .then(result => {
-                console.log(result);
-                console.log(result.weather[0].description);
-                this.setState(prevState => ({
-                    weather: {
-                        ...prevState.weather,
-                        description: result.weather[0].description,
-                        temp: result.main.temp,
-                        feelsLike: result.main.feels_like,
-                        low: result.main.temp_min,
-                        high: result.main.temp_max,
-                        humidity: result.main.humidity
-                    }
-                }))
-            })
+        const getCoords = () => {
+            navigator.geolocation.getCurrentPosition(successPosition, errorPosition, { enableHighAccuracy: true, timeout: 10000 });
+        }
 
+        const getWeather = () => {
+            fetch(`${baseURL}?lat=${this.state.lat}&lon=${this.state.lon}&appid=${key}&units=imperial`)
+                .then(result => result.json())
+                .then(result => {
+                    //console.log(result);
+                    //console.log(result.weather[0].description);
+                    this.setState(prevState => ({
+                        weather: {
+                            ...prevState.weather,
+                            description: result.weather[0].description,
+                            temp: result.main.temp,
+                            feelsLike: result.main.feels_like,
+                            low: result.main.temp_min,
+                            high: result.main.temp_max,
+                            humidity: result.main.humidity
+                        }
+                    }))
+                })
+        }
+
+        getCoords();
+        setTimeout(getWeather, 200) // lol
     };
 
     render() {
